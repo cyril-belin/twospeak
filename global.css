@@ -1,0 +1,128 @@
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/preflight.css" layer(base);
+@import "tailwindcss/utilities.css";
+
+@import "nativewind/theme";
+@import "./src/theme/tokens.css";
+
+@source "./src/**/*.{ts,tsx}";
+
+@utility surface__screen {
+  background-color: var(--color-background);
+}
+
+@utility ds-panel {
+  background-color: var(--color-background);
+  border-color: #eef0f5;
+  border-radius: var(--radius-panel);
+  border-width: 1px;
+  box-shadow: var(--shadow-card);
+}
+
+@utility ds-section__header {
+  border-bottom-color: var(--color-border);
+  border-bottom-width: 1px;
+  padding-bottom: 8px;
+}
+
+@utility brand__wordmark {
+  color: var(--color-text-primary);
+  font-family: var(--font-poppins-bold);
+  font-size: 58px;
+  letter-spacing: 0px;
+  line-height: 64px;
+}
+
+@utility type__eyebrow {
+  color: var(--color-lingua-purple);
+  font-family: var(--font-poppins-bold);
+  font-size: 20px;
+  letter-spacing: 0px;
+  line-height: 24px;
+  text-transform: uppercase;
+}
+
+@utility type__label {
+  color: var(--color-text-secondary);
+  font-family: var(--font-poppins-semibold);
+  font-size: 12px;
+  letter-spacing: 0px;
+  line-height: 16px;
+  text-transform: uppercase;
+}
+
+@utility type__h1 {
+  color: var(--color-text-primary);
+  font-family: var(--font-poppins-bold);
+  font-size: var(--text-h1);
+  letter-spacing: 0px;
+  line-height: 38.4px;
+}
+
+@utility type__h2 {
+  color: var(--color-text-primary);
+  font-family: var(--font-poppins-semibold);
+  font-size: var(--text-h2);
+  letter-spacing: 0px;
+  line-height: 31.2px;
+}
+
+@utility type__h3 {
+  color: var(--color-text-primary);
+  font-family: var(--font-poppins-semibold);
+  font-size: var(--text-h3);
+  letter-spacing: 0px;
+  line-height: 26px;
+}
+
+@utility type__h4 {
+  color: var(--color-text-primary);
+  font-family: var(--font-poppins-medium);
+  font-size: var(--text-h4);
+  letter-spacing: 0px;
+  line-height: 22.4px;
+}
+
+@utility type__body-large {
+  color: var(--color-text-primary);
+  font-family: var(--font-poppins-regular);
+  font-size: var(--text-body-large);
+  letter-spacing: 0px;
+  line-height: 25.6px;
+}
+
+@utility type__body-medium {
+  color: var(--color-text-secondary);
+  font-family: var(--font-poppins-regular);
+  font-size: var(--text-body-medium);
+  letter-spacing: 0px;
+  line-height: 22.4px;
+}
+
+@utility type__body-small {
+  color: var(--color-text-secondary);
+  font-family: var(--font-poppins-regular);
+  font-size: var(--text-body-small);
+  letter-spacing: 0px;
+  line-height: 20.8px;
+}
+
+@utility type__caption {
+  color: var(--color-text-secondary);
+  font-family: var(--font-poppins-regular);
+  font-size: var(--text-caption);
+  letter-spacing: 0px;
+  line-height: 15.4px;
+}
+
+@utility swatch__chip--large {
+  border-radius: var(--radius-swatch);
+  height: 102px;
+  width: 108px;
+}
+
+@utility swatch__chip--medium {
+  border-radius: var(--radius-swatch);
+  height: 82px;
+  width: 82px;
+}

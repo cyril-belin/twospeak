@@ -1,0 +1,49 @@
+@theme {
+  --color-lingua-purple: #6c4ef5;
+  --color-lingua-deep-purple: #5b3bf6;
+  --color-lingua-blue: #4d8bff;
+  --color-lingua-green: #21c16b;
+
+  --color-success: #21c16b;
+  --color-warning: #ffc800;
+  --color-streak: #ff8a00;
+  --color-error: #ff4d4f;
+  --color-info: #4d8bff;
+
+  --color-text-primary: #0d132b;
+  --color-text-secondary: #6b7280;
+  --color-border: #e5e7eb;
+  --color-surface: #f6f7fb;
+  --color-background: #ffffff;
+
+  --font-sans: "Poppins-Regular";
+  --font-poppins: "Poppins-Regular";
+  --font-poppins-regular: "Poppins-Regular";
+  --font-poppins-medium: "Poppins-Medium";
+  --font-poppins-semibold: "Poppins-SemiBold";
+  --font-poppins-bold: "Poppins-Bold";
+
+  --text-h1: 32px;
+  --text-h1--line-height: 1.2;
+  --text-h2: 24px;
+  --text-h2--line-height: 1.3;
+  --text-h3: 20px;
+  --text-h3--line-height: 1.3;
+  --text-h4: 16px;
+  --text-h4--line-height: 1.4;
+  --text-body-large: 16px;
+  --text-body-large--line-height: 1.6;
+  --text-body-medium: 14px;
+  --text-body-medium--line-height: 1.6;
+  --text-body-small: 13px;
+  --text-body-small--line-height: 1.6;
+  --text-caption: 11px;
+  --text-caption--line-height: 1.4;
+
+  --radius-card: 18px;
+  --radius-panel: 22px;
+  --radius-swatch: 10px;
+  --radius-button: 16px;
+
+  --shadow-card: 0px 8px 24px rgba(13, 19, 43, 0.05);
+}
