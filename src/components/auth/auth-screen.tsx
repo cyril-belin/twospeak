@@ -1,26 +1,34 @@
+import { useSignIn, useSignUp, useSSO } from "@clerk/expo";
+import { useSignInWithApple } from "@clerk/expo/apple";
+import { useSignInWithGoogle } from "@clerk/expo/google";
+import * as AuthSession from "expo-auth-session";
 import { Link, router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { SymbolView } from "expo-symbols";
+import * as WebBrowser from "expo-web-browser";
 import type { RefObject } from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
-    Image,
-    Keyboard,
-    KeyboardAvoidingView,
-    Modal,
-    Platform,
-    Pressable,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    useWindowDimensions,
-    View,
+  Alert,
+  Image,
+  Keyboard,
+  KeyboardAvoidingView,
+  Modal,
+  Platform,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  useWindowDimensions,
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { images } from "@/constants/images";
 import { colors } from "@/theme";
+
+WebBrowser.maybeCompleteAuthSession();
 
 type AuthMode = "sign-up" | "sign-in";
 
@@ -28,18 +36,43 @@ type AuthScreenProps = {
   mode: AuthMode;
 };
 
-const SOCIAL_PROVIDERS = ["Google", "Facebook", "Apple"] as const;
+type SocialProvider = {
+  icon: "Google" | "Facebook" | "Apple";
+  label: string;
+  strategy: "oauth_google" | "oauth_facebook" | "oauth_apple";
+};
+
+const SOCIAL_PROVIDERS: SocialProvider[] = [
+  { icon: "Google", label: "Google", strategy: "oauth_google" },
+  { icon: "Facebook", label: "Facebook", strategy: "oauth_facebook" },
+  { icon: "Apple", label: "Apple", strategy: "oauth_apple" },
+];
+
+type VerificationFlow = "sign-up" | "sign-in-email-code";
 
 export function AuthScreen({ mode }: AuthScreenProps) {
+  const { fetchStatus: signInFetchStatus, signIn } = useSignIn();
+  const { fetchStatus: signUpFetchStatus, signUp } = useSignUp();
+  const { startSSOFlow } = useSSO();
+  const { startAppleAuthenticationFlow } = useSignInWithApple();
+  const { startGoogleAuthenticationFlow } = useSignInWithGoogle();
   const { height, width } = useWindowDimensions();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [isVerificationVisible, setIsVerificationVisible] = useState(false);
   const [verificationCode, setVerificationCode] = useState("");
+  const [verificationFlow, setVerificationFlow] =
+    useState<VerificationFlow>("sign-up");
+  const [submittingSocialStrategy, setSubmittingSocialStrategy] =
+    useState<SocialProvider["strategy"] | null>(null);
   const codeInputRef = useRef<TextInput>(null);
 
   const isSignUp = mode === "sign-up";
+  const isSubmitting =
+    signInFetchStatus === "fetching" ||
+    signUpFetchStatus === "fetching" ||
+    submittingSocialStrategy !== null;
   const isCompactScreen = height < 900;
   const contentWidth = Math.min(Math.max(width - 56, 304), 340);
   const mascotSize = isCompactScreen ? 200 : 230;
@@ -93,9 +126,271 @@ export function AuthScreen({ mode }: AuthScreenProps) {
     router.replace("/onboarding");
   }
 
-  function openVerificationModal() {
+  function openVerificationModal(flow: VerificationFlow) {
     setVerificationCode("");
+    setVerificationFlow(flow);
     setIsVerificationVisible(true);
+  }
+
+  function showAuthError(message: string) {
+    Alert.alert("Authentication error", message);
+  }
+
+  function getClerkErrorMessage(error: unknown, fallback: string) {
+    if (error && typeof error === "object") {
+      if ("message" in error && typeof error.message === "string") {
+        return error.message;
+      }
+
+      if (
+        "errors" in error &&
+        Array.isArray(error.errors) &&
+        error.errors[0] &&
+        typeof error.errors[0] === "object" &&
+        "message" in error.errors[0] &&
+        typeof error.errors[0].message === "string"
+      ) {
+        return error.errors[0].message;
+      }
+    }
+
+    return fallback;
+  }
+
+  function handleAuthSuccess() {
+    setIsVerificationVisible(false);
+    Keyboard.dismiss();
+    router.replace("/");
+  }
+
+  async function finalizeSignUp() {
+    const { error } = await signUp.finalize();
+
+    if (error) {
+      showAuthError(getClerkErrorMessage(error, "Unable to finish sign up."));
+      return;
+    }
+
+    handleAuthSuccess();
+  }
+
+  async function finalizeSignIn() {
+    const { error } = await signIn.finalize();
+
+    if (error) {
+      showAuthError(getClerkErrorMessage(error, "Unable to finish sign in."));
+      return;
+    }
+
+    handleAuthSuccess();
+  }
+
+  async function handleEmailAuthPress() {
+    const emailAddress = email.trim();
+
+    if (!emailAddress || !password) {
+      showAuthError("Enter your email and password to continue.");
+      return;
+    }
+
+    if (isSignUp) {
+      const { error } = await signUp.password({ emailAddress, password });
+
+      if (error) {
+        showAuthError(getClerkErrorMessage(error, "Unable to sign up."));
+        return;
+      }
+
+      if (signUp.status === "complete") {
+        await finalizeSignUp();
+        return;
+      }
+
+      if (
+        signUp.status === "missing_requirements" &&
+        signUp.unverifiedFields.includes("email_address")
+      ) {
+        const { error: codeError } = await signUp.verifications.sendEmailCode();
+
+        if (codeError) {
+          showAuthError(
+            getClerkErrorMessage(
+              codeError,
+              "Unable to send verification code.",
+            ),
+          );
+          return;
+        }
+
+        openVerificationModal("sign-up");
+        return;
+      }
+
+      showAuthError("Your sign up needs more information before it can finish.");
+      return;
+    }
+
+    const { error } = await signIn.password({
+      identifier: emailAddress,
+      password,
+    });
+
+    if (error) {
+      showAuthError(getClerkErrorMessage(error, "Unable to sign in."));
+      return;
+    }
+
+    if (signIn.status === "complete") {
+      await finalizeSignIn();
+      return;
+    }
+
+    if (
+      signIn.status === "needs_second_factor" ||
+      signIn.status === "needs_client_trust"
+    ) {
+      const { error: codeError } = await signIn.mfa.sendEmailCode();
+
+      if (codeError) {
+        showAuthError(
+          getClerkErrorMessage(
+            codeError,
+            "This account needs additional verification.",
+          ),
+        );
+        return;
+      }
+
+      openVerificationModal("sign-in-email-code");
+      return;
+    }
+
+    showAuthError("Your sign in needs another step before it can finish.");
+  }
+
+  async function handleSocialAuthPress(provider: SocialProvider) {
+    setSubmittingSocialStrategy(provider.strategy);
+
+    try {
+      if (provider.strategy === "oauth_google" && canUseNativeGoogleSignIn()) {
+        const { createdSessionId, setActive } =
+          await startGoogleAuthenticationFlow();
+
+        if (createdSessionId && setActive) {
+          await setActive({ session: createdSessionId });
+          handleAuthSuccess();
+          return;
+        }
+
+        showAuthError(
+          `${provider.label} sign in needs another step before it can finish.`,
+        );
+        return;
+      }
+
+      if (provider.strategy === "oauth_apple" && Platform.OS === "ios") {
+        const { createdSessionId, setActive } =
+          await startAppleAuthenticationFlow();
+
+        if (createdSessionId && setActive) {
+          await setActive({ session: createdSessionId });
+          handleAuthSuccess();
+          return;
+        }
+
+        showAuthError(
+          `${provider.label} sign in needs another step before it can finish.`,
+        );
+        return;
+      }
+
+      await handleBrowserSocialAuth(provider);
+    } catch (error) {
+      showAuthError(
+        getClerkErrorMessage(error, `Unable to continue with ${provider.label}.`),
+      );
+    } finally {
+      setSubmittingSocialStrategy(null);
+    }
+  }
+
+  async function handleBrowserSocialAuth(provider: SocialProvider) {
+    const { createdSessionId, setActive } = await startSSOFlow({
+      strategy: provider.strategy,
+      redirectUrl: AuthSession.makeRedirectUri({
+        path: "sso-callback",
+        scheme: "twospeak",
+      }),
+    });
+
+    if (createdSessionId && setActive) {
+      await setActive({ session: createdSessionId });
+      handleAuthSuccess();
+      return;
+    }
+
+    showAuthError(
+      `${provider.label} sign in needs another step before it can finish.`,
+    );
+  }
+
+  function canUseNativeGoogleSignIn() {
+    if (Platform.OS !== "ios" && Platform.OS !== "android") {
+      return false;
+    }
+
+    if (!process.env.EXPO_PUBLIC_CLERK_GOOGLE_WEB_CLIENT_ID) {
+      return false;
+    }
+
+    if (Platform.OS === "ios") {
+      return Boolean(process.env.EXPO_PUBLIC_CLERK_GOOGLE_IOS_CLIENT_ID);
+    }
+
+    return true;
+  }
+
+  async function handleVerificationSubmit(code = verificationCode) {
+    if (code.length !== 6) {
+      return;
+    }
+
+    if (verificationFlow === "sign-up") {
+      const { error } = await signUp.verifications.verifyEmailCode({
+        code,
+      });
+
+      if (error) {
+        showAuthError(
+          getClerkErrorMessage(error, "Unable to verify this code."),
+        );
+        return;
+      }
+
+      if (signUp.status === "complete") {
+        await finalizeSignUp();
+        return;
+      }
+
+      showAuthError("Your sign up needs more information before it can finish.");
+      return;
+    }
+
+    const { error } = await signIn.mfa.verifyEmailCode({
+      code,
+    });
+
+    if (error) {
+      showAuthError(getClerkErrorMessage(error, "Unable to verify this code."));
+      return;
+    }
+
+    if (signIn.status === "complete") {
+      await finalizeSignIn();
+      return;
+    }
+
+    showAuthError("Your sign in needs another step before it can finish.");
   }
 
   function handleVerificationCodeChange(value: string) {
@@ -103,9 +398,7 @@ export function AuthScreen({ mode }: AuthScreenProps) {
     setVerificationCode(nextCode);
 
     if (nextCode.length === 6) {
-      setIsVerificationVisible(false);
-      Keyboard.dismiss();
-      router.replace("/");
+      void handleVerificationSubmit(nextCode);
     }
   }
 
@@ -240,10 +533,12 @@ export function AuthScreen({ mode }: AuthScreenProps) {
 
             <Pressable
               className="auth__primary-button mt-5 items-center justify-center"
-              onPress={openVerificationModal}
+              disabled={isSubmitting}
+              onPress={() => void handleEmailAuthPress()}
               style={({ pressed }) => [
                 styles.primaryButtonShadow,
                 { height: primaryButtonHeight },
+                isSubmitting && styles.disabled,
                 pressed && styles.primaryButtonPressed,
               ]}
             >
@@ -260,7 +555,10 @@ export function AuthScreen({ mode }: AuthScreenProps) {
               {SOCIAL_PROVIDERS.map((provider) => (
                 <SocialButton
                   iconSize={socialIconSize}
-                  key={provider}
+                  key={provider.strategy}
+                  isDisabled={isSubmitting}
+                  isLoading={submittingSocialStrategy === provider.strategy}
+                  onPress={() => void handleSocialAuthPress(provider)}
                   provider={provider}
                   socialButtonHeight={socialButtonHeight}
                 />
@@ -291,33 +589,41 @@ export function AuthScreen({ mode }: AuthScreenProps) {
 }
 
 type SocialButtonProps = {
-  provider: (typeof SOCIAL_PROVIDERS)[number];
+  provider: SocialProvider;
 };
 
 type SocialButtonComponentProps = SocialButtonProps & {
   iconSize: number;
+  isDisabled: boolean;
+  isLoading: boolean;
+  onPress: () => void;
   socialButtonHeight: number;
 };
 
 function SocialButton({
   iconSize,
+  isDisabled,
+  isLoading,
+  onPress,
   provider,
   socialButtonHeight,
 }: SocialButtonComponentProps) {
   return (
     <Pressable
       className="auth__social-button"
-      onPress={() => undefined}
+      disabled={isDisabled}
+      onPress={onPress}
       style={({ pressed }) => [
         styles.socialButtonShadow,
         { height: socialButtonHeight },
+        isDisabled && styles.disabled,
         pressed && styles.pressed,
       ]}
     >
       <View className="flex-row items-center" style={styles.socialButtonContent}>
         <SocialIcon iconSize={iconSize} provider={provider} />
         <Text className="auth__social-button-label">
-          Continue with {provider}
+          {isLoading ? "Opening..." : `Continue with ${provider.label}`}
         </Text>
       </View>
     </Pressable>
@@ -331,11 +637,11 @@ type SocialIconProps = SocialButtonProps & {
 function SocialIcon({ iconSize, provider }: SocialIconProps) {
   const iconStyle = { height: iconSize, width: iconSize };
 
-  if (provider === "Facebook") {
+  if (provider.icon === "Facebook") {
     return <Image resizeMode="contain" source={images.socialFacebook} style={iconStyle} />;
   }
 
-  if (provider === "Apple") {
+  if (provider.icon === "Apple") {
     return <Image resizeMode="contain" source={images.socialApple} style={iconStyle} />;
   }
 
@@ -461,6 +767,9 @@ const styles = StyleSheet.create({
   primaryButtonPressed: {
     opacity: 0.88,
     transform: [{ translateY: 1 }],
+  },
+  disabled: {
+    opacity: 0.55,
   },
   socialButtonShadow: {
     boxShadow: "0px 7px 18px rgba(13, 19, 43, 0.035)",

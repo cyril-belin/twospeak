@@ -1,4 +1,5 @@
-import { Link } from "expo-router";
+import { useAuth } from "@clerk/expo";
+import { Link, Redirect } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { SymbolView } from "expo-symbols";
 import {
@@ -16,9 +17,18 @@ import { images } from "@/constants/images";
 import { colors } from "@/theme";
 
 export default function OnboardingScreen() {
+  const { isLoaded, isSignedIn } = useAuth();
   const { height, width } = useWindowDimensions();
-  const contentWidth = Math.min(Math.max(width - 56, 300), 350);
-  const screenMinHeight = Math.max(height, 820);
+  const contentWidth = Math.min(Math.max(width - 36, 300), 357);
+  const screenMinHeight = Math.max(height, 760);
+
+  if (!isLoaded) {
+    return null;
+  }
+
+  if (isSignedIn) {
+    return <Redirect href="/" />;
+  }
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -39,17 +49,14 @@ export default function OnboardingScreen() {
               <Text className="onboarding__wordmark">lingua</Text>
             </View>
 
-            <View
-              className="mt-10 items-start"
-              style={{ width: contentWidth }}
-            >
+            <View className="mt-8 items-start" style={{ width: contentWidth }}>
               <Text className="onboarding__headline w-full text-left">
                 Your AI language
               </Text>
               <Text className="onboarding__headline w-full text-left text-lingua-deep-purple">
                 teacher.
               </Text>
-              <Text className="onboarding__body mt-5 w-full text-left">
+              <Text className="onboarding__body mt-4 w-full text-left">
                 Real conversations, personalized lessons, anytime, anywhere.
               </Text>
             </View>
@@ -60,7 +67,7 @@ export default function OnboardingScreen() {
             >
               <View style={styles.helloBubble}>
                 <View
-                  className="onboarding__bubble bg-white px-7 py-4"
+                  className="onboarding__bubble bg-white px-6 py-3"
                   style={styles.bubbleShadow}
                 >
                   <Text className="onboarding__bubble-text text-[#10131F]">
@@ -75,7 +82,7 @@ export default function OnboardingScreen() {
 
               <View style={styles.holaBubble}>
                 <View
-                  className="onboarding__bubble bg-white px-7 py-4"
+                  className="onboarding__bubble bg-white px-6 py-3"
                   style={styles.bubbleShadow}
                 >
                   <Text className="onboarding__bubble-text font-poppins-semibold text-[#121729]">
@@ -90,7 +97,7 @@ export default function OnboardingScreen() {
 
               <View style={styles.nihaoBubble}>
                 <View
-                  className="onboarding__bubble bg-white px-7 py-4"
+                  className="onboarding__bubble bg-white px-6 py-3"
                   style={styles.bubbleShadow}
                 >
                   <Text className="onboarding__bubble-text text-[#FF3D2F]">
@@ -103,7 +110,10 @@ export default function OnboardingScreen() {
                 </View>
               </View>
 
-              <View className="absolute left-0 right-0 items-center" style={styles.mascotWrap}>
+              <View
+                className="absolute left-0 right-0 items-center"
+                style={styles.mascotWrap}
+              >
                 <Image
                   resizeMode="contain"
                   source={images.mascotWelcome}
@@ -121,14 +131,14 @@ export default function OnboardingScreen() {
               <Text className="onboarding__primary-button-label">
                 Get Started
               </Text>
-              <View className="absolute right-8">
+              <View className="ml-5">
                 <SymbolView
                   name={{
                     android: "chevron_right",
                     ios: "chevron.right",
                     web: "chevron_right",
                   }}
-                  size={28}
+                  size={26}
                   tintColor="#FFFFFF"
                 />
               </View>
@@ -153,10 +163,10 @@ const styles = StyleSheet.create({
   screen: {
     alignSelf: "stretch",
     flex: 1,
-    paddingBottom: 36,
-    paddingHorizontal: 28,
-    paddingTop: 74,
     justifyContent: "space-between",
+    paddingBottom: 24,
+    paddingHorizontal: 18,
+    paddingTop: 22,
   },
   logo: {
     height: 44,
@@ -169,7 +179,7 @@ const styles = StyleSheet.create({
   helloBubble: {
     left: 0,
     position: "absolute",
-    top: 196,
+    top: 150,
     zIndex: 2,
   },
   holaBubble: {
@@ -185,29 +195,29 @@ const styles = StyleSheet.create({
     zIndex: 2,
   },
   mascotWrap: {
-    top: -36,
+    top: 0,
     zIndex: 1,
   },
   mascot: {
-    height: 430,
-    width: 430,
+    height: 390,
+    width: 390,
   },
   bubbleShadow: {
-    boxShadow: "0px 10px 26px rgba(13, 19, 43, 0.08)",
+    boxShadow: "0px 10px 28px rgba(13, 19, 43, 0.06)",
   },
   helloTail: {
-    bottom: -8,
-    right: 24,
+    bottom: -7,
+    right: 20,
     transform: [{ rotate: "22deg" }],
   },
   holaTail: {
-    bottom: -8,
-    left: 24,
+    bottom: -7,
+    left: 20,
     transform: [{ rotate: "22deg" }],
   },
   nihaoTail: {
-    bottom: -8,
-    left: 22,
+    bottom: -7,
+    left: 20,
     transform: [{ rotate: "22deg" }],
   },
 });
