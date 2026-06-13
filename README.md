@@ -5,17 +5,22 @@ React Native. The project is designed as a production-quality teaching app:
 each feature should be simple to understand, easy to extend, and close to a
 real mobile product.
 
-The app currently focuses on the visual foundation and onboarding experience.
-Future lessons will combine playful language practice with AI-powered teaching,
-chat, video, audio, XP, streaks, and language selection.
+The app currently focuses on the visual foundation, onboarding experience, and
+first authentication UI flow. Future lessons will combine playful language
+practice with AI-powered teaching, chat, video, audio, XP, streaks, and language
+selection.
 
 ## Current Status
 
 Implemented:
 
 - Mobile-first onboarding screen matching the provided design reference.
-- Root route (`/`) opening the onboarding experience directly.
+- Root route (`/`) opening the onboarding experience directly for now.
 - Dedicated onboarding route at `/onboarding`.
+- Sign Up route at `/sign-up` with email, password, social auth UI, and a
+  6-digit email verification modal.
+- Sign In route at `/sign-in` with email and social auth UI only.
+- Onboarding Get Started flow navigating into Sign Up.
 - Development-only design system screen at `/design-system`.
 - Centralized app image imports in `src/constants/images.ts`.
 - Poppins typography loaded through Expo Font.
@@ -24,7 +29,7 @@ Implemented:
 
 Planned:
 
-- Clerk authentication.
+- Clerk-backed authentication and real email/social provider handling.
 - Language selection.
 - Lesson map and lesson detail screens.
 - Vocabulary and review flows.
@@ -55,10 +60,16 @@ project reaches the matching lesson.
 ```txt
 src/
   app/
+    (auth)/
+      sign-in.tsx        Sign In route
+      sign-up.tsx        Sign Up route
     _layout.tsx          Root Expo Router layout and font loading
     index.tsx            Root route, currently re-exporting onboarding
     onboarding.tsx       Current onboarding screen
     design-system.tsx    Development-only design system reference
+  components/
+    auth/
+      auth-screen.tsx    Shared Sign Up / Sign In UI and verification modal
   constants/
     brand.ts             App display name constants
     images.ts            Centralized image imports
@@ -81,9 +92,13 @@ global.css               NativeWind imports and reusable utilities
 | --- | --- |
 | `/` | Opens the onboarding screen. |
 | `/onboarding` | Direct onboarding screen route. |
+| `/sign-up` | Account creation UI with email, password, social auth buttons, and verification modal. |
+| `/sign-in` | Sign-in UI with email and social auth buttons. |
 | `/design-system` | Visual token and component reference for development. |
 
 `/design-system` redirects back to `/` in production builds.
+The auth screens currently demonstrate the UI and local navigation flow; secure
+Clerk provider calls should be added in a later feature.
 
 ## Getting Started
 
@@ -168,11 +183,11 @@ import { images } from "@/constants/images";
 
 Recommended next steps:
 
-1. Add a language selection screen after onboarding.
-2. Add local selected-language state.
-3. Build the first lesson list with hardcoded lesson data.
-4. Add lesson completion and XP persistence.
-5. Add authentication with Clerk.
+1. Connect the auth UI to Clerk email and social providers.
+2. Add a language selection screen after onboarding/auth.
+3. Add local selected-language state.
+4. Build the first lesson list with hardcoded lesson data.
+5. Add lesson completion and XP persistence.
 6. Add chat-based AI tutor lessons through secure API routes.
 7. Add video teacher lessons with Stream and Vision Agents.
 
