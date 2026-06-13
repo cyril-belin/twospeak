@@ -113,7 +113,7 @@ export default function OnboardingScreen() {
             </View>
           </View>
 
-          <Link href="/" asChild>
+          <Link href="/sign-up" asChild>
             <Pressable
               className="onboarding__primary-button flex-row items-center justify-center"
               style={{ width: contentWidth }}
