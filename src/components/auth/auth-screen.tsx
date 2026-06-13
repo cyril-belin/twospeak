@@ -564,6 +564,8 @@ export function AuthScreen({ mode }: AuthScreenProps) {
                 />
               ))}
             </View>
+
+            {isSignUp && <View nativeID="clerk-captcha" />}
           </View>
 
           <View className="pb-1 pt-4">

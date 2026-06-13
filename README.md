@@ -6,7 +6,7 @@ each feature should be simple to understand, easy to extend, and close to a
 real mobile product.
 
 The app currently focuses on the visual foundation, onboarding experience, and
-first authentication UI flow. Future lessons will combine playful language
+Clerk-backed authentication flow. Future lessons will combine playful language
 practice with AI-powered teaching, chat, video, audio, XP, streaks, and language
 selection.
 
@@ -15,12 +15,15 @@ selection.
 Implemented:
 
 - Mobile-first onboarding screen matching the provided design reference.
-- Root route (`/`) opening the onboarding experience directly for now.
+- Root route (`/`) protected by Clerk authentication.
 - Dedicated onboarding route at `/onboarding`.
-- Sign Up route at `/sign-up` with email, password, social auth UI, and a
-  6-digit email verification modal.
-- Sign In route at `/sign-in` with email and social auth UI only.
+- Sign Up route at `/sign-up` with real Clerk email/password auth, social auth,
+  and 6-digit email verification.
+- Sign In route at `/sign-in` with real Clerk email/password auth, social auth,
+  and email-code verification when Clerk requires it.
 - Onboarding Get Started flow navigating into Sign Up.
+- Auth-aware routing: signed-out users see onboarding, signed-in users see home.
+- Local Clerk session persistence through `expo-secure-store`.
 - Development-only design system screen at `/design-system`.
 - Centralized app image imports in `src/constants/images.ts`.
 - Poppins typography loaded through Expo Font.
@@ -29,7 +32,6 @@ Implemented:
 
 Planned:
 
-- Clerk-backed authentication and real email/social provider handling.
 - Language selection.
 - Lesson map and lesson detail screens.
 - Vocabulary and review flows.
@@ -45,14 +47,20 @@ Planned:
 - React Native 0.85
 - TypeScript
 - Expo Router
+- Clerk Expo SDK
+- Expo SecureStore
+- Expo AuthSession
+- Expo WebBrowser
+- Expo Crypto
+- Expo Apple Authentication
 - NativeWind `5.0.0-preview.4`
 - Tailwind CSS v4
 - React Native CSS
 - Expo Font
 - Expo Symbols
 
-The long-term product stack also includes Clerk, Zustand, AsyncStorage, Stream,
-and server-side API routes. Those should be added feature by feature when the
+The long-term product stack also includes Zustand, AsyncStorage, Stream, and
+server-side API routes. Those should be added feature by feature when the
 project reaches the matching lesson.
 
 ## Project Structure
@@ -61,10 +69,11 @@ project reaches the matching lesson.
 src/
   app/
     (auth)/
+      _layout.tsx        Redirects authenticated users away from auth screens
       sign-in.tsx        Sign In route
       sign-up.tsx        Sign Up route
-    _layout.tsx          Root Expo Router layout and font loading
-    index.tsx            Root route, currently re-exporting onboarding
+    _layout.tsx          Root Expo Router layout, fonts, and Clerk provider
+    index.tsx            Authenticated home route
     onboarding.tsx       Current onboarding screen
     design-system.tsx    Development-only design system reference
   components/
@@ -90,15 +99,32 @@ global.css               NativeWind imports and reusable utilities
 
 | Route | Purpose |
 | --- | --- |
-| `/` | Opens the onboarding screen. |
-| `/onboarding` | Direct onboarding screen route. |
-| `/sign-up` | Account creation UI with email, password, social auth buttons, and verification modal. |
-| `/sign-in` | Sign-in UI with email and social auth buttons. |
+| `/` | Authenticated home route. Redirects signed-out users to `/onboarding`. |
+| `/onboarding` | Signed-out onboarding route. Redirects signed-in users to `/`. |
+| `/sign-up` | Clerk account creation with email/password, social auth buttons, and verification modal. |
+| `/sign-in` | Clerk sign-in with email/password, social auth buttons, and verification handling. |
 | `/design-system` | Visual token and component reference for development. |
 
 `/design-system` redirects back to `/` in production builds.
-The auth screens currently demonstrate the UI and local navigation flow; secure
-Clerk provider calls should be added in a later feature.
+
+## Authentication
+
+Authentication is handled with Clerk's Expo SDK.
+
+Email sign-up creates a Clerk sign-up attempt, sends an email verification code,
+and finalizes the session after the user enters the 6-digit code. Email sign-in
+uses Clerk password authentication and opens the same verification modal when
+Clerk requires an email-code step.
+
+Social auth uses Clerk social providers:
+
+- Google uses Clerk native sign-in when the required Google client IDs are
+  configured and falls back to the browser-based SSO flow otherwise.
+- Apple uses native Sign in with Apple on iOS.
+- Facebook uses Clerk's browser-based SSO flow.
+
+Never expose Clerk secret keys in the mobile app. Only the publishable key uses
+the `EXPO_PUBLIC_` prefix.
 
 ## Getting Started
 
@@ -106,6 +132,26 @@ Install dependencies:
 
 ```bash
 npm install
+```
+
+Create a local environment file:
+
+```bash
+cp .env.example .env.local
+```
+
+Then add your Clerk publishable key:
+
+```env
+EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_your-key-here
+```
+
+Optional Google native sign-in values can also be added to `.env.local`:
+
+```env
+EXPO_PUBLIC_CLERK_GOOGLE_WEB_CLIENT_ID=your-google-web-client-id.apps.googleusercontent.com
+EXPO_PUBLIC_CLERK_GOOGLE_IOS_CLIENT_ID=your-google-ios-client-id.apps.googleusercontent.com
+EXPO_PUBLIC_CLERK_GOOGLE_IOS_URL_SCHEME=com.googleusercontent.apps.your-google-ios-client-id
 ```
 
 Start the Expo development server:
@@ -131,6 +177,9 @@ Run on Android Emulator:
 ```bash
 npm run android
 ```
+
+The JavaScript email/password flow works in Expo Go. Native Google and Apple
+sign-in require Clerk dashboard setup and a development build.
 
 ## Quality Checks
 
@@ -183,13 +232,12 @@ import { images } from "@/constants/images";
 
 Recommended next steps:
 
-1. Connect the auth UI to Clerk email and social providers.
-2. Add a language selection screen after onboarding/auth.
-3. Add local selected-language state.
-4. Build the first lesson list with hardcoded lesson data.
-5. Add lesson completion and XP persistence.
-6. Add chat-based AI tutor lessons through secure API routes.
-7. Add video teacher lessons with Stream and Vision Agents.
+1. Add a language selection screen after onboarding/auth.
+2. Add local selected-language state.
+3. Build the first lesson list with hardcoded lesson data.
+4. Add lesson completion and XP persistence.
+5. Add chat-based AI tutor lessons through secure API routes.
+6. Add video teacher lessons with Stream and Vision Agents.
 
 ## Repository Workflow
 
