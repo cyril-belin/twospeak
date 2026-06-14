@@ -785,6 +785,15 @@
   line-height: 18px;
 }
 
+@utility audio-lesson__subtitle-text {
+  color: #ffffff;
+  font-family: var(--font-poppins-medium);
+  font-size: 13px;
+  letter-spacing: 0px;
+  line-height: 19px;
+  text-align: center;
+}
+
 @utility audio-lesson__control-label {
   color: #ffffff;
   font-family: var(--font-poppins-semibold);

@@ -1,19 +1,27 @@
 import { router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { SymbolView, type SymbolViewProps } from "expo-symbols";
+import { useState } from "react";
 import {
-    Image,
-    ImageBackground,
-    Pressable,
-    StyleSheet,
-    Text,
-    useWindowDimensions,
-    View,
+  Image,
+  ImageBackground,
+  Pressable,
+  StyleSheet,
+  Text,
+  useWindowDimensions,
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { getLessonHeroImageSource, images } from "@/constants/images";
-import type { AudioLessonScreenData } from "@/data/audio-lesson-screen";
+import {
+  getInitialAudioLessonSessionState,
+  updateAudioLessonSessionState,
+  type AudioLessonScreenData,
+  type AudioLessonSessionAction,
+  type AudioLessonSessionState,
+} from "@/data/audio-lesson-screen";
+import { useProgressStore } from "@/store/progress-store";
 import { colors } from "@/theme";
 
 type AudioLessonScreenProps = {
@@ -21,6 +29,7 @@ type AudioLessonScreenProps = {
 };
 
 type SessionControl = {
+  action: AudioLessonSessionAction;
   icon: SymbolViewProps["name"];
   label: string;
   tone: "neutral" | "danger";
@@ -28,21 +37,29 @@ type SessionControl = {
 
 const controls: SessionControl[] = [
   {
+    action: "toggle-preview",
     icon: { android: "videocam", ios: "video.fill", web: "videocam" },
     label: "Camera",
     tone: "neutral",
   },
   {
+    action: "toggle-mic",
     icon: { android: "mic", ios: "mic.fill", web: "mic" },
     label: "Mic",
     tone: "neutral",
   },
   {
-    icon: { android: "translate", ios: "character.book.closed.fill", web: "translate" },
+    action: "toggle-subtitles",
+    icon: {
+      android: "translate",
+      ios: "character.book.closed.fill",
+      web: "translate",
+    },
     label: "Subtitles",
     tone: "neutral",
   },
   {
+    action: "end-session",
     icon: { android: "call_end", ios: "phone.down.fill", web: "call_end" },
     label: "End Call",
     tone: "danger",
@@ -53,6 +70,33 @@ export function AudioLessonScreen({ screenData }: AudioLessonScreenProps) {
   const { width } = useWindowDimensions();
   const contentWidth = Math.min(Math.max(width - 28, 320), 430);
   const lessonPhrase = screenData.phrases[0];
+  const completeLesson = useProgressStore((state) => state.completeLesson);
+  const [sessionState, setSessionState] = useState(() =>
+    getInitialAudioLessonSessionState(screenData),
+  );
+
+  function handleSessionAction(action: AudioLessonSessionAction) {
+    if (action === "end-session" && sessionState.hasEnded) {
+      router.back();
+      return;
+    }
+
+    const nextState = updateAudioLessonSessionState(
+      sessionState,
+      action,
+      screenData,
+    );
+
+    if (action === "end-session" && !sessionState.hasEnded) {
+      completeLesson(
+        screenData.lesson.id,
+        screenData.lesson.languageCode,
+        screenData.lesson.xpReward,
+      );
+    }
+
+    setSessionState(nextState);
+  }
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -89,7 +133,7 @@ export function AudioLessonScreen({ screenData }: AudioLessonScreenProps) {
               <View className="mt-1 flex-row items-center">
                 <View style={styles.onlineDot} />
                 <Text className="audio-lesson__status ml-2" numberOfLines={1}>
-                  {screenData.sessionStatus}
+                  {sessionState.status}
                 </Text>
               </View>
             </View>
@@ -97,6 +141,8 @@ export function AudioLessonScreen({ screenData }: AudioLessonScreenProps) {
             <HeaderAction
               accessibilityLabel="Audio lesson preview"
               icon={{ android: "videocam", ios: "video.fill", web: "videocam" }}
+              isSelected={sessionState.isPreviewOn}
+              onPress={() => handleSessionAction("toggle-preview")}
               size={22}
             />
             <View className="items-center justify-center" style={styles.xpPill}>
@@ -105,12 +151,13 @@ export function AudioLessonScreen({ screenData }: AudioLessonScreenProps) {
               </Text>
             </View>
             <HeaderAction
-              accessibilityLabel="User profile"
+              accessibilityLabel="Play teacher response"
               icon={{
-                android: "person",
-                ios: "person.fill",
-                web: "person",
+                android: "volume_up",
+                ios: "speaker.wave.2.fill",
+                web: "volume_up",
               }}
+              onPress={() => handleSessionAction("play-teacher")}
             />
           </View>
 
@@ -120,7 +167,12 @@ export function AudioLessonScreen({ screenData }: AudioLessonScreenProps) {
             source={getLessonHeroImageSource(screenData.lesson.id)}
             style={styles.preview}
           >
-            <View style={styles.previewScrim} />
+            <View
+              style={[
+                styles.previewScrim,
+                !sessionState.isPreviewOn && styles.previewScrimMuted,
+              ]}
+            />
 
             <View className="absolute left-5 top-5" style={styles.lessonBadge}>
               <Text className="audio-lesson__badge" numberOfLines={1}>
@@ -133,50 +185,79 @@ export function AudioLessonScreen({ screenData }: AudioLessonScreenProps) {
 
             <View className="absolute right-4 top-4" style={styles.teacherTile}>
               <Text className="audio-lesson__teacher-flag">
-                {screenData.language.flagEmoji}
+                {sessionState.isPreviewOn ? screenData.language.flagEmoji : "♪"}
               </Text>
               <Text className="audio-lesson__teacher-label" numberOfLines={1}>
-                Teacher
+                {sessionState.isPreviewOn ? "Teacher" : "Audio only"}
               </Text>
             </View>
 
-            <Image
-              resizeMode="contain"
-              source={images.mascotAuth}
-              style={styles.teacherMascot}
-            />
+            {sessionState.isPreviewOn ? (
+              <Image
+                resizeMode="contain"
+                source={images.mascotAuth}
+                style={styles.teacherMascot}
+              />
+            ) : null}
 
-            <View style={styles.messageBubble}>
+            <View
+              style={[
+                styles.messageBubble,
+                sessionState.subtitle && styles.messageBubbleWithSubtitles,
+              ]}
+            >
               <View className="flex-1 pr-3">
                 <Text className="audio-lesson__message">
-                  {screenData.teacherMessage.encouragement}
+                  {sessionState.teacherMessage.encouragement}
                 </Text>
                 <Text className="audio-lesson__message mt-2">
-                  {screenData.teacherMessage.phrase}
+                  {sessionState.teacherMessage.phrase}
                 </Text>
                 <Text className="audio-lesson__translation mt-1">
-                  {screenData.teacherMessage.translation}
+                  {sessionState.teacherMessage.translation}
                 </Text>
               </View>
-              <SymbolView
-                name={{
-                  android: "volume_up",
-                  ios: "speaker.wave.2.fill",
-                  web: "volume_up",
-                }}
-                size={34}
-                tintColor={colors.linguaDeepPurple}
-                weight="semibold"
-              />
+              <Pressable
+                accessibilityLabel="Play teacher response"
+                accessibilityRole="button"
+                onPress={() => handleSessionAction("play-teacher")}
+                style={({ pressed }) => pressed && styles.pressed}
+              >
+                <SymbolView
+                  name={{
+                    android: "volume_up",
+                    ios: "speaker.wave.2.fill",
+                    web: "volume_up",
+                  }}
+                  size={34}
+                  tintColor={colors.linguaDeepPurple}
+                  weight="semibold"
+                />
+              </Pressable>
               <View style={styles.bubbleTail} />
             </View>
+
+            {sessionState.subtitle ? (
+              <View style={styles.subtitleBar}>
+                <Text className="audio-lesson__subtitle-text" numberOfLines={2}>
+                  {sessionState.subtitle}
+                </Text>
+              </View>
+            ) : null}
 
             <View
               className="absolute left-0 right-0 flex-row justify-between px-5"
               style={styles.controlsBar}
             >
               {controls.map((control) => (
-                <SessionControlButton control={control} key={control.label} />
+                <SessionControlButton
+                  control={control}
+                  isActive={getControlIsActive(control.action, sessionState)}
+                  isEnded={sessionState.hasEnded}
+                  key={control.label}
+                  label={getControlLabel(control.action, sessionState)}
+                  onPress={() => handleSessionAction(control.action)}
+                />
               ))}
             </View>
           </ImageBackground>
@@ -185,19 +266,19 @@ export function AudioLessonScreen({ screenData }: AudioLessonScreenProps) {
             <FeedbackColumn
               label="Speaking"
               tone="success"
-              value={screenData.feedback.speaking}
+              value={sessionState.feedback.speaking}
             />
             <View style={styles.feedbackDivider} />
             <FeedbackColumn
               label="Pronunciation"
               tone="info"
-              value={screenData.feedback.pronunciation}
+              value={sessionState.feedback.pronunciation}
             />
             <View style={styles.feedbackDivider} />
             <FeedbackColumn
               label="Grammar"
               tone="purple"
-              value={screenData.feedback.grammar}
+              value={sessionState.feedback.grammar}
             />
           </View>
 
@@ -213,17 +294,27 @@ export function AudioLessonScreen({ screenData }: AudioLessonScreenProps) {
 function HeaderAction({
   accessibilityLabel,
   icon,
+  isSelected = false,
+  onPress,
   size = 22,
 }: {
   accessibilityLabel: string;
   icon: SessionControl["icon"];
+  isSelected?: boolean;
+  onPress: () => void;
   size?: number;
 }) {
   return (
     <Pressable
       accessibilityLabel={accessibilityLabel}
       accessibilityRole="button"
-      style={({ pressed }) => [styles.headerAction, pressed && styles.pressed]}
+      accessibilityState={{ selected: isSelected }}
+      onPress={onPress}
+      style={({ pressed }) => [
+        styles.headerAction,
+        isSelected && styles.headerActionActive,
+        pressed && styles.pressed,
+      ]}
     >
       <SymbolView
         name={icon}
@@ -235,14 +326,29 @@ function HeaderAction({
   );
 }
 
-function SessionControlButton({ control }: { control: SessionControl }) {
+function SessionControlButton({
+  control,
+  isActive,
+  isEnded,
+  label,
+  onPress,
+}: {
+  control: SessionControl;
+  isActive: boolean;
+  isEnded: boolean;
+  label: string;
+  onPress: () => void;
+}) {
   const isDanger = control.tone === "danger";
+  const icon = getControlIcon(control.action, isActive, isEnded, control.icon);
 
   return (
     <Pressable
-      accessibilityLabel={control.label}
+      accessibilityLabel={label}
       accessibilityRole="button"
+      accessibilityState={{ selected: isActive }}
       className="items-center"
+      onPress={onPress}
       style={({ pressed }) => [pressed && styles.pressed]}
     >
       <View
@@ -250,17 +356,25 @@ function SessionControlButton({ control }: { control: SessionControl }) {
         style={[
           styles.controlButton,
           isDanger ? styles.controlButtonDanger : styles.controlButtonNeutral,
+          isActive && !isDanger && styles.controlButtonActive,
+          isEnded && isDanger && styles.controlButtonComplete,
         ]}
       >
         <SymbolView
-          name={control.icon}
+          name={icon}
           size={isDanger ? 34 : 31}
-          tintColor={isDanger ? "#FFFFFF" : colors.textPrimary}
+          tintColor={
+            isDanger
+              ? "#FFFFFF"
+              : isActive
+                ? colors.linguaDeepPurple
+                : colors.textPrimary
+          }
           weight="semibold"
         />
       </View>
       <Text className="audio-lesson__control-label mt-2">
-        {control.label}
+        {label}
       </Text>
     </Pressable>
   );
@@ -288,6 +402,69 @@ function FeedbackColumn({
       <Text className={`${valueClassName} mt-3`}>{value}</Text>
     </View>
   );
+}
+
+function getControlIsActive(
+  action: AudioLessonSessionAction,
+  state: AudioLessonSessionState,
+) {
+  if (action === "toggle-mic") {
+    return state.isMicOn;
+  }
+
+  if (action === "toggle-preview") {
+    return state.isPreviewOn;
+  }
+
+  if (action === "toggle-subtitles") {
+    return state.areSubtitlesOn;
+  }
+
+  return state.hasEnded;
+}
+
+function getControlLabel(
+  action: AudioLessonSessionAction,
+  state: AudioLessonSessionState,
+) {
+  if (action === "toggle-mic") {
+    return state.isMicOn ? "Mic" : "Muted";
+  }
+
+  if (action === "toggle-preview") {
+    return state.isPreviewOn ? "Camera" : "Audio";
+  }
+
+  if (action === "toggle-subtitles") {
+    return state.areSubtitlesOn ? "Captions" : "Subtitles";
+  }
+
+  return state.hasEnded ? "Done" : "End Call";
+}
+
+function getControlIcon(
+  action: AudioLessonSessionAction,
+  isActive: boolean,
+  isEnded: boolean,
+  fallbackIcon: SymbolViewProps["name"],
+): SymbolViewProps["name"] {
+  if (action === "toggle-mic" && !isActive) {
+    return { android: "mic_off", ios: "mic.slash.fill", web: "mic_off" };
+  }
+
+  if (action === "toggle-preview" && !isActive) {
+    return {
+      android: "videocam_off",
+      ios: "video.slash.fill",
+      web: "videocam_off",
+    };
+  }
+
+  if (action === "end-session" && isEnded) {
+    return { android: "check", ios: "checkmark", web: "check" };
+  }
+
+  return fallbackIcon;
 }
 
 const styles = StyleSheet.create({
@@ -329,6 +506,10 @@ const styles = StyleSheet.create({
     marginLeft: 6,
     width: 48,
   },
+  headerActionActive: {
+    backgroundColor: "#F4F1FF",
+    borderColor: "#DCD5FF",
+  },
   xpPill: {
     backgroundColor: "#FFFFFF",
     borderColor: "#ECEEF6",
@@ -355,6 +536,9 @@ const styles = StyleSheet.create({
     position: "absolute",
     right: 0,
     top: 0,
+  },
+  previewScrimMuted: {
+    backgroundColor: "rgba(13, 19, 43, 0.54)",
   },
   lessonBadge: {
     backgroundColor: "rgba(255, 255, 255, 0.92)",
@@ -396,6 +580,9 @@ const styles = StyleSheet.create({
     position: "absolute",
     width: "72%",
   },
+  messageBubbleWithSubtitles: {
+    bottom: 178,
+  },
   bubbleTail: {
     backgroundColor: "#FFFFFF",
     bottom: -14,
@@ -406,6 +593,8 @@ const styles = StyleSheet.create({
     width: 29,
   },
   controlButton: {
+    borderColor: "transparent",
+    borderWidth: 2,
     height: 70,
     width: 70,
   },
@@ -415,8 +604,25 @@ const styles = StyleSheet.create({
   controlButtonNeutral: {
     backgroundColor: "#FFFFFF",
   },
+  controlButtonActive: {
+    backgroundColor: "#F4F1FF",
+    borderColor: "#DCD5FF",
+  },
   controlButtonDanger: {
     backgroundColor: "#FF4147",
+  },
+  controlButtonComplete: {
+    backgroundColor: colors.linguaGreen,
+  },
+  subtitleBar: {
+    alignSelf: "center",
+    backgroundColor: "rgba(13, 19, 43, 0.72)",
+    borderRadius: 16,
+    bottom: 104,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    position: "absolute",
+    width: "86%",
   },
   feedbackCard: {
     borderCurve: "continuous",
