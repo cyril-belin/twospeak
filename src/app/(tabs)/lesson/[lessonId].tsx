@@ -1,14 +1,14 @@
 import { useLocalSearchParams } from "expo-router";
 
-import { LessonDetailScreen } from "@/components/lessons/lesson-detail-screen";
+import { AudioLessonScreen } from "@/components/lessons/audio-lesson-screen";
 import { TabPlaceholderScreen } from "@/components/navigation/tab-placeholder-screen";
-import { getLesson } from "@/data";
+import { getAudioLessonScreenData } from "@/data/audio-lesson-screen";
 
-export default function LessonRouteScreen() {
+export default function AudioLessonRouteScreen() {
   const { lessonId } = useLocalSearchParams<{ lessonId: string }>();
-  const lesson = getLesson(lessonId);
+  const screenData = getAudioLessonScreenData(lessonId);
 
-  if (!lesson) {
+  if (!screenData) {
     return (
       <TabPlaceholderScreen
         subtitle="This lesson is not available yet."
@@ -17,5 +17,5 @@ export default function LessonRouteScreen() {
     );
   }
 
-  return <LessonDetailScreen lesson={lesson} />;
+  return <AudioLessonScreen screenData={screenData} />;
 }

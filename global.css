@@ -714,6 +714,126 @@
   line-height: 24px;
 }
 
+@utility audio-lesson__title {
+  color: var(--color-text-primary);
+  font-family: var(--font-poppins-semibold);
+  font-size: 25px;
+  letter-spacing: 0px;
+  line-height: 32px;
+}
+
+@utility audio-lesson__status {
+  color: #69708f;
+  font-family: var(--font-poppins-medium);
+  font-size: 17px;
+  letter-spacing: 0px;
+  line-height: 23px;
+}
+
+@utility audio-lesson__xp {
+  color: var(--color-text-primary);
+  font-family: var(--font-poppins-semibold);
+  font-size: 22px;
+  letter-spacing: 0px;
+  line-height: 28px;
+}
+
+@utility audio-lesson__badge {
+  color: var(--color-text-primary);
+  font-family: var(--font-poppins-semibold);
+  font-size: 14px;
+  letter-spacing: 0px;
+  line-height: 19px;
+}
+
+@utility audio-lesson__badge-subtitle {
+  color: #68708b;
+  font-family: var(--font-poppins-medium);
+  font-size: 11px;
+  letter-spacing: 0px;
+  line-height: 16px;
+}
+
+@utility audio-lesson__teacher-flag {
+  font-family: var(--font-poppins-regular);
+  font-size: 42px;
+  letter-spacing: 0px;
+  line-height: 48px;
+}
+
+@utility audio-lesson__teacher-label {
+  color: var(--color-text-primary);
+  font-family: var(--font-poppins-semibold);
+  font-size: 13px;
+  letter-spacing: 0px;
+  line-height: 18px;
+}
+
+@utility audio-lesson__message {
+  color: var(--color-text-primary);
+  font-family: var(--font-poppins-medium);
+  font-size: 20px;
+  letter-spacing: 0px;
+  line-height: 27px;
+}
+
+@utility audio-lesson__translation {
+  color: #626b87;
+  font-family: var(--font-poppins-regular);
+  font-size: 13px;
+  letter-spacing: 0px;
+  line-height: 18px;
+}
+
+@utility audio-lesson__control-label {
+  color: #ffffff;
+  font-family: var(--font-poppins-semibold);
+  font-size: 14px;
+  letter-spacing: 0px;
+  line-height: 19px;
+}
+
+@utility audio-lesson__feedback-label {
+  color: var(--color-text-primary);
+  font-family: var(--font-poppins-semibold);
+  font-size: 15px;
+  letter-spacing: 0px;
+  line-height: 21px;
+}
+
+@utility audio-lesson__feedback-value--success {
+  color: #08d221;
+  font-family: var(--font-poppins-semibold);
+  font-size: 16px;
+  letter-spacing: 0px;
+  line-height: 22px;
+}
+
+@utility audio-lesson__feedback-value--info {
+  color: #0077ff;
+  font-family: var(--font-poppins-semibold);
+  font-size: 16px;
+  letter-spacing: 0px;
+  line-height: 22px;
+}
+
+@utility audio-lesson__feedback-value--purple {
+  color: var(--color-lingua-deep-purple);
+  font-family: var(--font-poppins-semibold);
+  font-size: 16px;
+  letter-spacing: 0px;
+  line-height: 22px;
+}
+
+@utility audio-lesson__context {
+  color: #717892;
+  font-family: var(--font-poppins-regular);
+  font-size: 12px;
+  letter-spacing: 0px;
+  line-height: 18px;
+  text-align: center;
+}
+
 @utility swatch__chip--large {
   border-radius: var(--radius-swatch);
   height: 102px;

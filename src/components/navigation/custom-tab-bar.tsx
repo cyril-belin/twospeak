@@ -82,6 +82,9 @@ export function CustomTabBar({
     [state.routes],
   );
   const activeRoute = state.routes[state.index];
+  const activeTabName = activeRoute?.name.startsWith("lesson/")
+    ? "learn"
+    : activeRoute?.name;
 
   return (
     <View className="bg-background">
@@ -104,7 +107,7 @@ export function CustomTabBar({
             }
 
             const descriptor = descriptors[route.key];
-            const isFocused = route.key === activeRoute?.key;
+            const isFocused = route.name === activeTabName;
             const options = descriptor.options;
             const accessibilityLabel =
               options.tabBarAccessibilityLabel ?? tabItem.label;
