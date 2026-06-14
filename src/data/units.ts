@@ -1,0 +1,88 @@
+import type { Unit } from "@/types/learning";
+
+export const units = [
+  {
+    id: "es-basics-1",
+    languageCode: "es",
+    order: 3,
+    title: "At the Café",
+    description: "Move through greetings, daily routines, cafe orders, travel, shopping, and family.",
+    level: "beginner",
+    goals: [
+      "Use friendly introductions",
+      "Talk about daily routines",
+      "Order confidently in a cafe",
+    ],
+    lessonIds: [
+      "es-greetings",
+      "es-daily-life",
+      "es-cafe-order",
+      "es-travel-directions",
+      "es-shopping",
+      "es-family-friends",
+    ],
+  },
+  {
+    id: "fr-basics-1",
+    languageCode: "fr",
+    order: 3,
+    title: "At the Café",
+    description: "Build beginner French for greetings, routines, cafes, travel, shopping, and family.",
+    level: "beginner",
+    goals: [
+      "Greet people politely",
+      "Describe simple daily life",
+      "Ask for food and drinks",
+    ],
+    lessonIds: [
+      "fr-greetings",
+      "fr-daily-life",
+      "fr-cafe-order",
+      "fr-travel-directions",
+      "fr-shopping",
+      "fr-family-friends",
+    ],
+  },
+  {
+    id: "ja-basics-1",
+    languageCode: "ja",
+    order: 3,
+    title: "At the Café",
+    description: "Practice friendly Japanese for greetings, routines, cafes, travel, shopping, and family.",
+    level: "beginner",
+    goals: [
+      "Start simple conversations",
+      "Use polite cafe phrases",
+      "Recognize everyday travel words",
+    ],
+    lessonIds: [
+      "ja-greetings",
+      "ja-daily-life",
+      "ja-cafe-order",
+      "ja-travel-directions",
+      "ja-shopping",
+      "ja-family-friends",
+    ],
+  },
+  {
+    id: "de-basics-1",
+    languageCode: "de",
+    order: 3,
+    title: "At the Café",
+    description: "Learn German greetings, daily life, cafe orders, directions, shopping, and family words.",
+    level: "beginner",
+    goals: [
+      "Introduce yourself simply",
+      "Order politely",
+      "Ask clear everyday questions",
+    ],
+    lessonIds: [
+      "de-greetings",
+      "de-daily-life",
+      "de-cafe-order",
+      "de-travel-directions",
+      "de-shopping",
+      "de-family-friends",
+    ],
+  },
+] as const satisfies readonly Unit[];

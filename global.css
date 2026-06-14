@@ -207,6 +207,107 @@
   width: 44px;
 }
 
+@utility language__title {
+  color: var(--color-text-primary);
+  font-family: var(--font-poppins-semibold);
+  font-size: 24px;
+  letter-spacing: 0px;
+  line-height: 32px;
+}
+
+@utility language__search {
+  background-color: #fbfbfd;
+  border-color: #e8ebf2;
+  border-radius: 24px;
+  border-width: 1px;
+  height: 52px;
+}
+
+@utility language__search-text {
+  color: #7b8196;
+  font-family: var(--font-poppins-regular);
+  font-size: 17px;
+  letter-spacing: 0px;
+  line-height: 25px;
+}
+
+@utility language__section-title {
+  color: var(--color-text-primary);
+  font-family: var(--font-poppins-semibold);
+  font-size: 18px;
+  letter-spacing: 0px;
+  line-height: 25px;
+}
+
+@utility language__card {
+  background-color: #ffffff;
+  border-color: #f4f5f9;
+  border-radius: 22px;
+  border-width: 1px;
+  box-shadow: 0px 8px 22px rgba(13, 19, 43, 0.03);
+  padding-left: 16px;
+  padding-right: 18px;
+}
+
+@utility language__flag {
+  font-family: var(--font-poppins-regular);
+  font-size: 31px;
+  letter-spacing: 0px;
+  line-height: 38px;
+}
+
+@utility language__card-title {
+  color: var(--color-text-primary);
+  font-family: var(--font-poppins-semibold);
+  font-size: 18px;
+  letter-spacing: 0px;
+  line-height: 25px;
+}
+
+@utility language__card-subtitle {
+  color: #737b98;
+  font-family: var(--font-poppins-regular);
+  font-size: 15px;
+  letter-spacing: 0px;
+  line-height: 21px;
+}
+
+@utility language__check {
+  background-color: var(--color-lingua-purple);
+  border-color: #d8d0ff;
+  border-width: 2px;
+}
+
+@utility language__confirm-button {
+  background-color: var(--color-lingua-purple);
+  border-radius: 18px;
+  box-shadow: 0px 10px 22px rgba(91, 59, 246, 0.22);
+  height: 58px;
+}
+
+@utility language__confirm-label {
+  color: #ffffff;
+  font-family: var(--font-poppins-semibold);
+  font-size: 18px;
+  letter-spacing: 0px;
+  line-height: 24px;
+}
+
+@utility language__korea-mark {
+  font-family: var(--font-poppins-regular);
+  font-size: 30px;
+  letter-spacing: 0px;
+  line-height: 36px;
+}
+
+@utility language__china-star {
+  color: #ffde00;
+  font-family: var(--font-poppins-bold);
+  font-size: 12px;
+  letter-spacing: 0px;
+  line-height: 12px;
+}
+
 @utility auth__code-digit {
   color: var(--color-text-primary);
   font-family: var(--font-poppins-semibold);
@@ -295,6 +396,322 @@
   font-size: var(--text-caption);
   letter-spacing: 0px;
   line-height: 15.4px;
+}
+
+@utility home__flag {
+  font-family: var(--font-poppins-regular);
+  font-size: 30px;
+  letter-spacing: 0px;
+  line-height: 38px;
+}
+
+@utility home__greeting {
+  color: #171b35;
+  font-family: var(--font-poppins-semibold);
+  font-size: 20px;
+  letter-spacing: 0px;
+  line-height: 28px;
+}
+
+@utility home__streak {
+  color: #30364f;
+  font-family: var(--font-poppins-semibold);
+  font-size: 20px;
+  letter-spacing: 0px;
+  line-height: 28px;
+}
+
+@utility home__daily-card {
+  background-color: #fff8ef;
+  border-radius: 20px;
+  box-shadow: 0px 8px 22px rgba(202, 138, 55, 0.07);
+  height: 120px;
+}
+
+@utility home__daily-label {
+  color: #26314f;
+  font-family: var(--font-poppins-semibold);
+  font-size: 18px;
+  letter-spacing: 0px;
+  line-height: 24px;
+}
+
+@utility home__daily-value {
+  color: #17204a;
+  font-family: var(--font-poppins-semibold);
+  font-size: 33px;
+  letter-spacing: 0px;
+  line-height: 39px;
+}
+
+@utility home__daily-value-muted {
+  color: #7b86a3;
+  font-family: var(--font-poppins-medium);
+  font-size: 18px;
+  letter-spacing: 0px;
+  line-height: 26px;
+}
+
+@utility home__daily-progress-track {
+  background-color: #ffe5c7;
+  border-radius: 999px;
+  height: 9px;
+}
+
+@utility home__daily-progress-fill {
+  background-color: #ff7a1a;
+  border-radius: 999px;
+  height: 9px;
+}
+
+@utility home__learning-card {
+  background-color: #6849f7;
+  border-radius: 20px;
+  height: 164px;
+}
+
+@utility home__learning-label {
+  color: #ffffff;
+  font-family: var(--font-poppins-medium);
+  font-size: 18px;
+  letter-spacing: 0px;
+  line-height: 24px;
+}
+
+@utility home__learning-title {
+  color: #ffffff;
+  font-family: var(--font-poppins-semibold);
+  font-size: 29px;
+  letter-spacing: 0px;
+  line-height: 36px;
+}
+
+@utility home__learning-unit {
+  color: #eeeaff;
+  font-family: var(--font-poppins-medium);
+  font-size: 20px;
+  letter-spacing: 0px;
+  line-height: 28px;
+}
+
+@utility home__continue-button {
+  background-color: #ffffff;
+  border-radius: 14px;
+  height: 54px;
+  width: 120px;
+}
+
+@utility home__continue-label {
+  color: var(--color-lingua-deep-purple);
+  font-family: var(--font-poppins-semibold);
+  font-size: 18px;
+  letter-spacing: 0px;
+  line-height: 24px;
+}
+
+@utility home__section-title {
+  color: var(--color-text-primary);
+  font-family: var(--font-poppins-semibold);
+  font-size: 20px;
+  letter-spacing: 0px;
+  line-height: 28px;
+}
+
+@utility home__section-link {
+  color: var(--color-lingua-deep-purple);
+  font-family: var(--font-poppins-semibold);
+  font-size: 18px;
+  letter-spacing: 0px;
+  line-height: 24px;
+}
+
+@utility home__plan-title {
+  color: #19213d;
+  font-family: var(--font-poppins-semibold);
+  font-size: 17px;
+  letter-spacing: 0px;
+  line-height: 24px;
+}
+
+@utility home__plan-subtitle {
+  color: #78819e;
+  font-family: var(--font-poppins-regular);
+  font-size: 16px;
+  letter-spacing: 0px;
+  line-height: 22px;
+}
+
+@utility home__plan-check {
+  background-color: var(--color-lingua-purple);
+  height: 30px;
+  width: 30px;
+}
+
+@utility home__plan-empty {
+  border-color: #8d96b4;
+  border-width: 2px;
+  height: 30px;
+  width: 30px;
+}
+
+@utility home__empty-plan {
+  background-color: #fbfbfd;
+  border-color: #eef0f5;
+  border-radius: 18px;
+  border-width: 1px;
+  min-height: 116px;
+}
+
+@utility home__empty-title {
+  color: var(--color-text-primary);
+  font-family: var(--font-poppins-semibold);
+  font-size: 17px;
+  letter-spacing: 0px;
+  line-height: 24px;
+}
+
+@utility home__empty-subtitle {
+  color: #78819e;
+  font-family: var(--font-poppins-regular);
+  font-size: 14px;
+  letter-spacing: 0px;
+  line-height: 21px;
+}
+
+@utility tabs__label {
+  color: #7d849e;
+  font-family: var(--font-poppins-semibold);
+  font-size: 12px;
+  letter-spacing: 0px;
+  line-height: 16px;
+}
+
+@utility tabs__label--active {
+  color: var(--color-lingua-deep-purple);
+  font-family: var(--font-poppins-semibold);
+  font-size: 12px;
+  letter-spacing: 0px;
+  line-height: 16px;
+}
+
+@utility tabs__placeholder-title {
+  color: var(--color-text-primary);
+  font-family: var(--font-poppins-bold);
+  font-size: 28px;
+  letter-spacing: 0px;
+  line-height: 36px;
+}
+
+@utility tabs__placeholder-subtitle {
+  color: #737a95;
+  font-family: var(--font-poppins-regular);
+  font-size: 15px;
+  letter-spacing: 0px;
+  line-height: 24px;
+}
+
+@utility lesson__title {
+  color: #0d132b;
+  font-family: var(--font-poppins-semibold);
+  font-size: 25px;
+  letter-spacing: 0px;
+  line-height: 32px;
+}
+
+@utility lesson__subtitle {
+  color: #69708f;
+  font-family: var(--font-poppins-medium);
+  font-size: 20px;
+  letter-spacing: 0px;
+  line-height: 28px;
+}
+
+@utility lesson__tab-label {
+  color: #69708f;
+  font-family: var(--font-poppins-semibold);
+  font-size: 20px;
+  letter-spacing: 0px;
+  line-height: 28px;
+}
+
+@utility lesson__tab-label--active {
+  color: var(--color-lingua-deep-purple);
+  font-family: var(--font-poppins-semibold);
+  font-size: 20px;
+  letter-spacing: 0px;
+  line-height: 28px;
+}
+
+@utility lesson__card-label {
+  color: #8990a8;
+  font-family: var(--font-poppins-semibold);
+  font-size: 15px;
+  letter-spacing: 0px;
+  line-height: 21px;
+}
+
+@utility lesson__card-label--active {
+  color: var(--color-lingua-deep-purple);
+  font-family: var(--font-poppins-semibold);
+  font-size: 15px;
+  letter-spacing: 0px;
+  line-height: 21px;
+}
+
+@utility lesson__card-title {
+  color: #0d132b;
+  font-family: var(--font-poppins-semibold);
+  font-size: 18px;
+  letter-spacing: 0px;
+  line-height: 25px;
+}
+
+@utility lesson__progress {
+  color: var(--color-lingua-deep-purple);
+  font-family: var(--font-poppins-semibold);
+  font-size: 16px;
+  letter-spacing: 0px;
+  line-height: 22px;
+}
+
+@utility lesson__progress--muted {
+  color: #7d849e;
+  font-family: var(--font-poppins-medium);
+  font-size: 16px;
+  letter-spacing: 0px;
+  line-height: 22px;
+}
+
+@utility lesson-detail__title {
+  color: var(--color-text-primary);
+  font-family: var(--font-poppins-bold);
+  font-size: 30px;
+  letter-spacing: 0px;
+  line-height: 38px;
+}
+
+@utility lesson-detail__subtitle {
+  color: #737a95;
+  font-family: var(--font-poppins-regular);
+  font-size: 16px;
+  letter-spacing: 0px;
+  line-height: 24px;
+}
+
+@utility lesson-detail__meta {
+  color: var(--color-lingua-deep-purple);
+  font-family: var(--font-poppins-semibold);
+  font-size: 15px;
+  letter-spacing: 0px;
+  line-height: 21px;
+}
+
+@utility lesson-detail__goal {
+  color: #222a45;
+  font-family: var(--font-poppins-medium);
+  font-size: 16px;
+  letter-spacing: 0px;
+  line-height: 24px;
 }
 
 @utility swatch__chip--large {

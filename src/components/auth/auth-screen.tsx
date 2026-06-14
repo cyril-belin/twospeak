@@ -6,49 +6,41 @@ import { Link, router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { SymbolView } from "expo-symbols";
 import * as WebBrowser from "expo-web-browser";
-import type { RefObject } from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
-  Alert,
-  Image,
-  Keyboard,
-  KeyboardAvoidingView,
-  Modal,
-  Platform,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  useWindowDimensions,
-  View,
+    Alert,
+    Image,
+    Keyboard,
+    Platform,
+    Pressable,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    useWindowDimensions,
+    View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { images } from "@/constants/images";
+import {
+    canUseNativeGoogleSignIn,
+    getClerkErrorMessage,
+    SOCIAL_PROVIDERS,
+    type AuthMode,
+    type SocialProvider,
+    type VerificationFlow,
+} from "@/lib/clerk";
 import { colors } from "@/theme";
 
-WebBrowser.maybeCompleteAuthSession();
+import { SocialButton } from "./social-button";
+import { VerificationModal } from "./verification-modal";
 
-type AuthMode = "sign-up" | "sign-in";
+WebBrowser.maybeCompleteAuthSession();
 
 type AuthScreenProps = {
   mode: AuthMode;
 };
-
-type SocialProvider = {
-  icon: "Google" | "Facebook" | "Apple";
-  label: string;
-  strategy: "oauth_google" | "oauth_facebook" | "oauth_apple";
-};
-
-const SOCIAL_PROVIDERS: SocialProvider[] = [
-  { icon: "Google", label: "Google", strategy: "oauth_google" },
-  { icon: "Facebook", label: "Facebook", strategy: "oauth_facebook" },
-  { icon: "Apple", label: "Apple", strategy: "oauth_apple" },
-];
-
-type VerificationFlow = "sign-up" | "sign-in-email-code";
 
 export function AuthScreen({ mode }: AuthScreenProps) {
   const { fetchStatus: signInFetchStatus, signIn } = useSignIn();
@@ -134,27 +126,6 @@ export function AuthScreen({ mode }: AuthScreenProps) {
 
   function showAuthError(message: string) {
     Alert.alert("Authentication error", message);
-  }
-
-  function getClerkErrorMessage(error: unknown, fallback: string) {
-    if (error && typeof error === "object") {
-      if ("message" in error && typeof error.message === "string") {
-        return error.message;
-      }
-
-      if (
-        "errors" in error &&
-        Array.isArray(error.errors) &&
-        error.errors[0] &&
-        typeof error.errors[0] === "object" &&
-        "message" in error.errors[0] &&
-        typeof error.errors[0].message === "string"
-      ) {
-        return error.errors[0].message;
-      }
-    }
-
-    return fallback;
   }
 
   function handleAuthSuccess() {
@@ -288,7 +259,7 @@ export function AuthScreen({ mode }: AuthScreenProps) {
         return;
       }
 
-      if (provider.strategy === "oauth_apple" && Platform.OS === "ios") {
+      if (provider.strategy === "oauth_apple" && Platform.select({ ios: true, default: false })) {
         const { createdSessionId, setActive } =
           await startAppleAuthenticationFlow();
 
@@ -332,22 +303,6 @@ export function AuthScreen({ mode }: AuthScreenProps) {
     showAuthError(
       `${provider.label} sign in needs another step before it can finish.`,
     );
-  }
-
-  function canUseNativeGoogleSignIn() {
-    if (Platform.OS !== "ios" && Platform.OS !== "android") {
-      return false;
-    }
-
-    if (!process.env.EXPO_PUBLIC_CLERK_GOOGLE_WEB_CLIENT_ID) {
-      return false;
-    }
-
-    if (Platform.OS === "ios") {
-      return Boolean(process.env.EXPO_PUBLIC_CLERK_GOOGLE_IOS_CLIENT_ID);
-    }
-
-    return true;
   }
 
   async function handleVerificationSubmit(code = verificationCode) {
@@ -590,141 +545,6 @@ export function AuthScreen({ mode }: AuthScreenProps) {
   );
 }
 
-type SocialButtonProps = {
-  provider: SocialProvider;
-};
-
-type SocialButtonComponentProps = SocialButtonProps & {
-  iconSize: number;
-  isDisabled: boolean;
-  isLoading: boolean;
-  onPress: () => void;
-  socialButtonHeight: number;
-};
-
-function SocialButton({
-  iconSize,
-  isDisabled,
-  isLoading,
-  onPress,
-  provider,
-  socialButtonHeight,
-}: SocialButtonComponentProps) {
-  return (
-    <Pressable
-      className="auth__social-button"
-      disabled={isDisabled}
-      onPress={onPress}
-      style={({ pressed }) => [
-        styles.socialButtonShadow,
-        { height: socialButtonHeight },
-        isDisabled && styles.disabled,
-        pressed && styles.pressed,
-      ]}
-    >
-      <View className="flex-row items-center" style={styles.socialButtonContent}>
-        <SocialIcon iconSize={iconSize} provider={provider} />
-        <Text className="auth__social-button-label">
-          {isLoading ? "Opening..." : `Continue with ${provider.label}`}
-        </Text>
-      </View>
-    </Pressable>
-  );
-}
-
-type SocialIconProps = SocialButtonProps & {
-  iconSize: number;
-};
-
-function SocialIcon({ iconSize, provider }: SocialIconProps) {
-  const iconStyle = { height: iconSize, width: iconSize };
-
-  if (provider.icon === "Facebook") {
-    return <Image resizeMode="contain" source={images.socialFacebook} style={iconStyle} />;
-  }
-
-  if (provider.icon === "Apple") {
-    return <Image resizeMode="contain" source={images.socialApple} style={iconStyle} />;
-  }
-
-  return <Image resizeMode="contain" source={images.socialGoogle} style={iconStyle} />;
-}
-
-type VerificationModalProps = {
-  code: string;
-  inputRef: RefObject<TextInput | null>;
-  isVisible: boolean;
-  onChangeCode: (value: string) => void;
-  onClose: () => void;
-};
-
-function VerificationModal({
-  code,
-  inputRef,
-  isVisible,
-  onChangeCode,
-  onClose,
-}: VerificationModalProps) {
-  return (
-    <Modal
-      animationType="fade"
-      onRequestClose={onClose}
-      transparent
-      visible={isVisible}
-    >
-      <KeyboardAvoidingView
-        behavior={Platform.select({ ios: "padding", default: "height" })}
-        style={styles.modalKeyboardView}
-      >
-        <Pressable className="flex-1 justify-end" onPress={onClose}>
-          <Pressable
-            className="auth__modal-card mx-5 mb-5 px-6 pb-7 pt-6"
-            onPress={() => inputRef.current?.focus()}
-            style={styles.modalCardShadow}
-          >
-            <Text className="auth__modal-title">Check your email</Text>
-            <Text className="auth__modal-body mt-3">
-              We sent you a verification code. Enter the 6 digits to continue.
-            </Text>
-
-            <View className="mt-6 flex-row justify-between gap-2">
-              {Array.from({ length: 6 }).map((_, index) => {
-                const digit = code[index];
-
-                return (
-                  <View
-                    className={`auth__code-box items-center justify-center ${
-                      digit ? "border-lingua-deep-purple" : "border-[#E7EAF2]"
-                    }`}
-                    key={`verification-digit-${index}`}
-                  >
-                    <Text className="auth__code-digit">{digit ?? ""}</Text>
-                  </View>
-                );
-              })}
-            </View>
-
-            <TextInput
-              autoComplete="one-time-code"
-              autoFocus
-              caretHidden={false}
-              inputMode="numeric"
-              keyboardType="number-pad"
-              maxLength={6}
-              onChangeText={onChangeCode}
-              ref={inputRef}
-              style={styles.hiddenCodeInput}
-              textContentType="oneTimeCode"
-              underlineColorAndroid="transparent"
-              value={code}
-            />
-          </Pressable>
-        </Pressable>
-      </KeyboardAvoidingView>
-    </Modal>
-  );
-}
-
 const styles = StyleSheet.create({
   safeArea: {
     backgroundColor: colors.background,
@@ -773,28 +593,7 @@ const styles = StyleSheet.create({
   disabled: {
     opacity: 0.55,
   },
-  socialButtonShadow: {
-    boxShadow: "0px 7px 18px rgba(13, 19, 43, 0.035)",
-  },
-  socialButtonContent: {
-    gap: 28,
-    height: "100%",
-    paddingLeft: 56,
-  },
   pressed: {
     opacity: 0.72,
-  },
-  modalKeyboardView: {
-    backgroundColor: "rgba(8, 12, 31, 0.38)",
-    flex: 1,
-  },
-  modalCardShadow: {
-    boxShadow: "0px 18px 34px rgba(13, 19, 43, 0.18)",
-  },
-  hiddenCodeInput: {
-    height: 1,
-    opacity: 0,
-    position: "absolute",
-    width: 1,
   },
 });
