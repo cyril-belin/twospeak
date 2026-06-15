@@ -1,15 +1,15 @@
 import {
-  getLanguage,
-  getLessonsByLanguage,
-  getLessonsForUnit,
-  getUnitsByLanguage,
+    getLanguage,
+    getLessonsByLanguage,
+    getLessonsForUnit,
+    getUnitsByLanguage,
 } from "@/data";
 import { isProgressFresh, type ProgressInput } from "@/store/progress-store";
 import type {
-  Language,
-  Lesson,
-  SupportedLanguageCode,
-  Unit,
+    Language,
+    Lesson,
+    SupportedLanguageCode,
+    Unit,
 } from "@/types/learning";
 
 export type LessonScreenLessonStatus =
@@ -82,7 +82,7 @@ export function getLessonScreenData(
         href: `/lesson/${lesson.id}`,
         lesson,
         lessonNumber: index + 1,
-        progressLabel: getLessonProgressLabel(status),
+        progressLabel: getLessonProgressLabel(status, lesson.activities.length),
         status,
       };
     }),
@@ -128,11 +128,7 @@ function resolveCompletedCount(
     completedLessonIds.has(lesson.id),
   ).length;
 
-  if (currentLessonIndex === -1) {
-    return completedOnly;
-  }
-
-  return completedOnly + 1;
+  return completedOnly;
 }
 
 function getLessonStatus(
@@ -156,13 +152,16 @@ function getLessonStatus(
   return "not-started";
 }
 
-function getLessonProgressLabel(status: LessonScreenLessonStatus) {
+function getLessonProgressLabel(
+  status: LessonScreenLessonStatus,
+  activityCount: number,
+) {
   if (status === "in-progress") {
     return "In progress";
   }
 
   if (status === "not-started") {
-    return "0 / 6 lessons";
+    return `0 / ${activityCount} lessons`;
   }
 
   return null;

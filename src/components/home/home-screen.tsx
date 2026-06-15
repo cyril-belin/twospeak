@@ -207,8 +207,14 @@ function TodayPlanRow({ item }: { item: HomePlanItem }) {
 
   return (
     <Pressable
-      accessibilityRole="button"
+      accessibilityRole={item.href ? "button" : undefined}
       className="flex-row items-center"
+      disabled={!item.href}
+      onPress={() => {
+        if (item.href) {
+          router.push(item.href);
+        }
+      }}
       style={({ pressed }) => pressed && styles.pressed}
     >
       <View

@@ -2,6 +2,7 @@ import { useAuth } from "@clerk/expo";
 import { Redirect, Tabs } from "expo-router";
 
 import { CustomTabBar } from "@/components/navigation/custom-tab-bar";
+import { getLanguage } from "@/data";
 import { useLanguageStore } from "@/store/language-store";
 import { useProgressStore } from "@/store/progress-store";
 
@@ -25,7 +26,7 @@ export default function TabsLayout() {
     return null;
   }
 
-  if (!selectedLanguageCode) {
+  if (!selectedLanguageCode || !getLanguage(selectedLanguageCode)) {
     return <Redirect href="/language-selection" />;
   }
 
@@ -42,7 +43,11 @@ export default function TabsLayout() {
       <Tabs.Screen name="learn" options={{ title: "Learn" }} />
       <Tabs.Screen
         name="lesson/[lessonId]"
-        options={{ href: null, title: "AI Teacher" }}
+        options={{
+          href: null,
+          tabBarStyle: { display: "none" },
+          title: "AI Teacher",
+        }}
       />
       <Tabs.Screen name="ai-teacher" options={{ title: "AI Teacher" }} />
       <Tabs.Screen name="chat" options={{ title: "Chat" }} />
