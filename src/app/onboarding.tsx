@@ -3,13 +3,13 @@ import { Link, Redirect } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { SymbolView } from "expo-symbols";
 import {
-  Image,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  useWindowDimensions,
-  View,
+    Image,
+    Pressable,
+    ScrollView,
+    StyleSheet,
+    Text,
+    useWindowDimensions,
+    View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -46,7 +46,7 @@ export default function OnboardingScreen() {
                 source={images.mascotLogo}
                 style={styles.logo}
               />
-              <Text className="onboarding__wordmark">lingua</Text>
+              <Text className="onboarding__wordmark">twospeak</Text>
             </View>
 
             <View className="mt-8 items-start" style={{ width: contentWidth }}>

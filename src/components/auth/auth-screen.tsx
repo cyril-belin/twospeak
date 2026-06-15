@@ -135,6 +135,11 @@ export function AuthScreen({ mode }: AuthScreenProps) {
   }
 
   async function finalizeSignUp() {
+    if (!signUp) {
+      showAuthError("Sign up is not ready yet. Please try again.");
+      return;
+    }
+
     const { error } = await signUp.finalize();
 
     if (error) {
@@ -146,6 +151,11 @@ export function AuthScreen({ mode }: AuthScreenProps) {
   }
 
   async function finalizeSignIn() {
+    if (!signIn) {
+      showAuthError("Sign in is not ready yet. Please try again.");
+      return;
+    }
+
     const { error } = await signIn.finalize();
 
     if (error) {
@@ -165,6 +175,11 @@ export function AuthScreen({ mode }: AuthScreenProps) {
     }
 
     if (isSignUp) {
+      if (!signUp) {
+        showAuthError("Sign up is not ready yet. Please try again.");
+        return;
+      }
+
       const { error } = await signUp.password({ emailAddress, password });
 
       if (error) {
@@ -198,6 +213,11 @@ export function AuthScreen({ mode }: AuthScreenProps) {
       }
 
       showAuthError("Your sign up needs more information before it can finish.");
+      return;
+    }
+
+    if (!signIn) {
+      showAuthError("Sign in is not ready yet. Please try again.");
       return;
     }
 
@@ -311,6 +331,11 @@ export function AuthScreen({ mode }: AuthScreenProps) {
     }
 
     if (verificationFlow === "sign-up") {
+      if (!signUp) {
+        showAuthError("Sign up is not ready yet. Please try again.");
+        return;
+      }
+
       const { error } = await signUp.verifications.verifyEmailCode({
         code,
       });
@@ -328,6 +353,11 @@ export function AuthScreen({ mode }: AuthScreenProps) {
       }
 
       showAuthError("Your sign up needs more information before it can finish.");
+      return;
+    }
+
+    if (!signIn) {
+      showAuthError("Sign in is not ready yet. Please try again.");
       return;
     }
 

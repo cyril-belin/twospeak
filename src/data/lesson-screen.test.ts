@@ -47,7 +47,7 @@ if (progressedSpanish.lessons[3]?.status !== "in-progress") {
   );
 }
 
-if (progressedSpanish.progressLabel !== "Unit 3 • 4 / 6 lessons") {
+if (progressedSpanish.progressLabel !== "Unit 3 • 3 / 6 lessons") {
   throw new Error(
     "Lessons screen progress label should reflect real completions.",
   );

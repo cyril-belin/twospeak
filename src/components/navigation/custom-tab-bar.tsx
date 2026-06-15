@@ -82,9 +82,14 @@ export function CustomTabBar({
     [state.routes],
   );
   const activeRoute = state.routes[state.index];
+  const shouldHideTabBar = activeRoute?.name.startsWith("lesson/") === true;
   const activeTabName = activeRoute?.name.startsWith("lesson/")
     ? "learn"
     : activeRoute?.name;
+
+  if (shouldHideTabBar) {
+    return null;
+  }
 
   return (
     <View className="bg-background">

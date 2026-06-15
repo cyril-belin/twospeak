@@ -16,6 +16,7 @@ export type HomePlanItemKind = "lesson" | "ai-conversation" | "new-words";
 
 export type HomePlanItem = {
   id: string;
+  href?: `/lesson/${string}`;
   kind: HomePlanItemKind;
   title: string;
   subtitle: string;
@@ -129,6 +130,7 @@ function getTodayPlan(
   return [
     {
       completed: lessonCompleted,
+      href: `/lesson/${lesson.id}`,
       id: `${lesson.id}-lesson`,
       kind: "lesson",
       subtitle: getLessonSubtitle(lesson),
@@ -136,6 +138,7 @@ function getTodayPlan(
     },
     {
       completed: false,
+      href: `/lesson/${lesson.id}`,
       id: `${lesson.id}-ai-conversation`,
       kind: "ai-conversation",
       subtitle: lesson.aiTeacherPrompt

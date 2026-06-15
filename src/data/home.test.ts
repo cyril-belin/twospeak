@@ -73,6 +73,18 @@ if (lessonPlan?.completed !== false) {
   );
 }
 
+if (lessonPlan.href !== "/lesson/es-daily-life") {
+  throw new Error("Home lesson plan rows should link to the current lesson.");
+}
+
+const aiConversationPlan = progressedSpanish.todayPlan.find(
+  (item) => item.kind === "ai-conversation",
+);
+
+if (aiConversationPlan?.href !== "/lesson/es-daily-life") {
+  throw new Error("Home AI conversation rows should open the current audio lesson.");
+}
+
 const germanHome = getHomeDashboardData("de", emptyProgress);
 
 if (germanHome?.language.name !== "German") {
